@@ -29,7 +29,7 @@
 }
 
 body {
-    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-family: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
     background: var(--bg);
     color: var(--fg);
     height: 100vh;
@@ -51,7 +51,7 @@ body {
     border: none;
     opacity: 0.4;
     transition: opacity 0.2s;
-    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-family: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace; 
 }
 
 .theme-toggle:hover {
@@ -100,7 +100,7 @@ body {
 
 .panel-header label {
     margin-bottom: 0;
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--fg);
     text-transform: uppercase;
@@ -109,7 +109,7 @@ body {
 /* Unified label style used for session, secret, payload */
 .field-label {
     margin-bottom: 0;
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--fg);
     text-transform: uppercase;
@@ -117,8 +117,8 @@ body {
 }
 
 .status-bar {
-    font-size: 11px;
-    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 14px;
+    font-family: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
     background: var(--status-bg);
     padding: 2px 6px;
     border-radius: 3px;
@@ -138,7 +138,7 @@ body {
 
 /* Make status bars slightly smaller and align text */
 .panel-header .status-bar {
-    font-size: 11px;
+    font-size: 14px;
     padding: 2px 8px;
     white-space: nowrap;
     overflow: hidden;
@@ -150,8 +150,8 @@ textarea, input {
     width: 100%;
     padding: 12px;
     border: none;
-    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-    font-size: 12px;
+    font-family: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 16px;
     background: var(--input-bg);
     color: var(--fg);
     resize: none;
@@ -207,8 +207,8 @@ textarea:focus, input:focus {
     height: auto;
     max-height: 58vh;
     padding: 12px;
-    font-size: 12px;
-    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 16px;
+    font-family: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
     background: transparent;
     color: var(--fg);
     caret-color: var(--fg);
@@ -227,8 +227,8 @@ textarea:focus, input:focus {
     width: 100%;
     height: 100%;
     padding: 12px;
-    font-size: 12px;
-    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 16px;
+    font-family: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
     pointer-events: none;
     overflow: hidden;
     white-space: pre-wrap;
@@ -268,10 +268,10 @@ textarea:focus, input:focus {
     left: 0;
     right: 0;
     text-align: center;
-    font-size: 12px;
+    font-size: 16px;
     color: var(--fg);
     opacity: 0.6;
-    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-family: 'Roboto Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
     z-index: 10;
     background: var(--bg);
     padding: 8px 0;

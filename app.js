@@ -1,11 +1,9 @@
 function encode(data, secret) {
     if (!data) {
         setStatusById('session-status', 'Payload is empty', true);
-        return '';
     }
     if (!secret) {
         setStatusById('secret-status', 'Secret key is empty', true);
-        return '';
     } else {
         setStatusById('secret-status', '', false);
     }
@@ -77,6 +75,7 @@ function toggleTheme() {
 
 // Load saved theme
 window.addEventListener('DOMContentLoaded', function() {
+    encodePayload();
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -85,12 +84,8 @@ window.addEventListener('DOMContentLoaded', function() {
     // Initialize status bars
     const sessionStatus = document.getElementById('session-status');
     const secretStatus = document.getElementById('secret-status');
-    if (sessionStatus && !sessionStatus.textContent.trim()) {
-        sessionStatus.textContent = 'Paste Flask Session Token';
-    }
-    if (secretStatus && !secretStatus.textContent.trim()) {
-        secretStatus.textContent = 'Enter secret key';
-    }
+    sessionStatus.textContent = 'Paste Flask Session Token';
+    secretStatus.textContent = 'Enter secret key';
     // Prevent global wheel scrolling except when over form controls (inputs/textareas)
     function _wheelHandler(e) {
         try {
