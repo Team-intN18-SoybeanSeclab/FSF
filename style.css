@@ -1,0 +1,289 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #fafafa;
+    --fg: #333;
+    --border: #ddd;
+    --input-bg: #fff;
+    --status-bg: transparent;
+    --status-error-bg: rgba(244, 67, 54, 0.1);
+    --status-error-color: #d32f2f;
+    --status-success-bg: rgba(76, 175, 80, 0.08);
+    --status-success-color: #2e7d32;
+}
+
+[data-theme="dark"] {
+    --bg: #1a1a1a;
+    --fg: #e0e0e0;
+    --border: #333;
+    --input-bg: #2a2a2a;
+    --status-bg: transparent;
+    --status-error-bg: rgba(239, 83, 80, 0.15);
+    --status-error-color: #ef5350;
+    --status-success-bg: rgba(102, 187, 106, 0.06);
+    --status-success-color: #81c784;
+}
+
+body {
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    background: var(--bg);
+    color: var(--fg);
+    height: 100vh;
+    overflow: auto; /* allow scrolling when card is smaller than viewport */
+    transition: background 0.3s, color 0.3s;
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+}
+
+.theme-toggle:hover {
+    opacity: 1;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr; /* give more space to left (session) */
+    gap: 18px;
+    height: auto; /* allow container to size to content inside the centered card */
+    padding-bottom: 40px;
+}
+
+/* Centered framed card that limits layout width */
+.app-card {
+    max-width: 770px; /* reduced ~30% to make UI smaller */
+    width: calc(100% - 48px);
+    margin: 24px auto;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(10,10,10,0.06);
+    padding: 12px;
+}
+
+.panel-left, .panel-right {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.panel-left {
+    border-right: 1px solid var(--border);
+}
+
+/* Panel Header with Status Bar */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    height: 20px;
+}
+
+.panel-header label {
+    margin-bottom: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fg);
+    text-transform: uppercase;
+}
+
+/* Unified label style used for session, secret, payload */
+.field-label {
+    margin-bottom: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fg);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.status-bar {
+    font-size: 11px;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    background: var(--status-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+    min-height: 16px;
+    transition: all 0.3s;
+}
+
+.status-bar.error {
+    background: var(--status-error-bg);
+    color: var(--status-error-color);
+}
+
+.status-bar.success {
+    background: var(--status-success-bg);
+    color: var(--status-success-color);
+}
+
+/* Make status bars slightly smaller and align text */
+.panel-header .status-bar {
+    font-size: 11px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Input Elements */
+textarea, input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 12px;
+    background: var(--input-bg);
+    color: var(--fg);
+    resize: none;
+    transition: all 0.3s;
+}
+
+textarea:focus, input:focus {
+    outline: none;
+    border-color: var(--fg);
+}
+
+.section {
+    margin-bottom: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#secret-input {
+    height: 60px;
+    margin-bottom: 20px;
+}
+
+#payload-input {
+    height: 300px;
+}
+
+/* Make secret and payload inputs visibly boxed */
+#secret-input, #payload-input {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--input-bg);
+}
+
+.section:last-child {
+    margin-bottom: 0;
+}
+
+/* Session Wrapper */
+.session-wrapper {
+    position: relative;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    display: grid;
+    height: auto;
+    max-height: 62vh; /* responsive cap so it doesn't grow too tall */
+    overflow: auto;
+}
+
+#session-input {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: auto;
+    max-height: 58vh;
+    padding: 12px;
+    font-size: 12px;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--fg);
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 1.8;
+    word-break: break-all;
+    white-space: pre-wrap;
+    overflow: auto;
+    z-index: 1;
+}
+
+#session-highlight {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+    font-size: 12px;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    pointer-events: none;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.8;
+    color: var(--fg);
+}
+
+.token-payload {
+    background: rgba(33, 150, 243, 0.12);
+}
+
+.token-signature {
+    background: rgba(255, 152, 0, 0.12);
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 900px) {
+    .container {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .app-card {
+        width: calc(100% - 24px);
+        margin: 18px auto;
+        padding: 12px;
+    }
+    .session-wrapper {
+        max-height: 48vh;
+    }
+}
+
+/* 底部版权信息 */
+.footer {
+    position: fixed;
+    bottom: 15px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--fg);
+    opacity: 0.6;
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    z-index: 10;
+    background: var(--bg);
+    padding: 8px 0;
+    margin: 0 20px;
+    border-radius: 4px;
+}
+
+.footer a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}

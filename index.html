@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Session Forge</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()" id="theme-icon">L</div>
+
+    <div class="app-card">
+        <div class="container">
+        <div class="panel-left">
+            <div class="panel-header">
+                <label class="field-label">session</label>
+                <div id="session-status" class="status-bar">Paste Flask Session Token</div>
+            </div>
+            <div class="session-wrapper">
+                <textarea id="session-input" placeholder="Paste Flask Session Token" rows="12"></textarea>
+                <div id="session-highlight"></div>
+            </div>
+        </div>
+        
+        <div class="panel-right">
+            <div class="section">
+                <div class="panel-header">
+                    <label class="field-label">secret</label>
+                    <div id="secret-status" class="status-bar">Enter secret key</div>
+                </div>
+                <input type="text" id="secret-input" placeholder="Enter secret key" autocomplete="off">
+            </div>
+            
+            <div class="section">
+                <label class="field-label">payload</label>
+                <textarea id="payload-input" rows="8" placeholder='Enter payload to encode: {"user_id": 1, "username": "admin"}'></textarea>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div style="position: fixed; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--fg); opacity: 0.6; font-family: 'Monaco', 'Menlo', 'Consolas', monospace;">
+        Flask Session Forge &copy; 2025 | 
+        <a href="https://github.com/Team-intN18-SoybeanSeclab/FSF" target="_blank" style="color: inherit;">GitHub</a>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
