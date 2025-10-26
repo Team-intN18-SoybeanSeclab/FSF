@@ -1,60 +1,62 @@
-// Flask Session Forge - Pure Frontend Implementation
+function encode(data, secret) {
+    if (!data) {
+        setStatusById('session-status', 'Payload is empty', true);
+        return '';
+    }
+    if (!secret) {
+        setStatusById('secret-status', 'Secret key is empty', true);
+        return '';
+    } else {
+        setStatusById('secret-status', '', false);
+    }
 
-class FlaskSessionSerializer {
-    constructor(secretKey) {
-        this.secretKey = secretKey;
+    let base64 = btoa(data);
+    base64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    let timestamp = Math.floor(Date.now() / 1000);
+    timestamp = String.fromCharCode((timestamp >> 24) & 0xFF) +
+                String.fromCharCode((timestamp >> 16) & 0xFF) +
+                String.fromCharCode((timestamp >> 8) & 0xFF) +
+                String.fromCharCode(timestamp & 0xFF);
+    let timestamp_base64 = btoa(timestamp);
+    timestamp_base64 = timestamp_base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    base64 = `${base64}.${timestamp_base64}`;
+    const signature = getSignature(base64, secret);
+    setStatusById('session-status', 'Signature valid', false);
+    
+    return `${base64}.${signature}`;
+}
+    
+function decode(token, secret) {
+    const parts = token.split('.');
+    
+    const payload = parts.slice(0, 2).join('.');
+    const signature = parts[2] || '';
+
+
+    const expectedSigUrl = getSignature(payload, secret);
+    
+    if (expectedSigUrl !== signature) {
+        setStatusById('session-status', 'Signature invalid', true);
+    } else {
+        setStatusById('session-status', 'Signature valid', false);
+    }
+    const timestamp = payload.split('.')[1];
+    const payload_raw = payload.split('.')[0];
+    let base64 = payload_raw.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+        base64 += '=';
     }
     
-    encode(data) {
-        const json = JSON.stringify(data);
-        const compressed = pako.deflate(json);
-        
-        let base64 = btoa(String.fromCharCode(...compressed));
-        base64 = base64.replace(/\+/g, '-').replace(/\//g, '_');
-        base64 = base64.replace(/=+$/, '');
-        
-        const hmac = CryptoJS.HmacSHA1(base64, this.secretKey);
-        const sig = CryptoJS.enc.Base64.stringify(hmac);
-        const signature = sig.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-        
-        return `${base64}.${signature}`;
-    }
-    
-    decode(token) {
-        const parts = token.split('.');
-        if (parts.length !== 2) {
-            throw new Error('Invalid token format');
-        }
-        
-        const payload = parts[0];
-        const signature = parts[1];
-        
-        const hmac = CryptoJS.HmacSHA1(payload, this.secretKey);
-        const expectedSig = CryptoJS.enc.Base64.stringify(hmac);
-        const expectedSigUrl = expectedSig.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-        
-        if (expectedSigUrl !== signature) {
-            throw new Error('Invalid signature - Wrong secret key');
-        }
-        
-        let base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-        while (base64.length % 4) {
-            base64 += '=';
-        }
-        
-        try {
-            const decoded = atob(base64);
-            const bytes = new Uint8Array(decoded.length);
-            for (let i = 0; i < decoded.length; i++) {
-                bytes[i] = decoded.charCodeAt(i);
-            }
-            
-            const decompressed = pako.inflate(bytes, {to: 'string'});
-            return JSON.parse(decompressed);
-        } catch (e) {
-            throw new Error('Failed to decode: ' + e.message);
-        }
-    }
+    const decoded = atob(base64);
+    return decoded;
+}
+
+function getSignature(payload, secret) {
+    const hmac_secret = CryptoJS.HmacSHA1("cookie-session", secret);
+    const hmac = CryptoJS.HmacSHA1(payload, hmac_secret);
+    const sig = CryptoJS.enc.Base64.stringify(hmac);
+    const signature = sig.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    return signature;
 }
 
 // Theme toggle
@@ -112,133 +114,38 @@ function setStatusById(id, message, isError = false) {
     const el = document.getElementById(id);
     if (!el) return;
     el.textContent = message || '';
-    // isError can be: true (error), 'success' (success), false/null (neutral)
     if (isError === true) {
         el.classList.add('error');
         el.classList.remove('success');
-    } else if (isError === 'success') {
-        el.classList.remove('error');
-        el.classList.add('success');
     } else {
         el.classList.remove('error');
         el.classList.remove('success');
     }
 }
 
-// Encode: Generate session from JSON
+// Encode Listeners
 document.getElementById('payload-input').addEventListener('input', function() {
-    const json = this.value.trim();
-    const secret = document.getElementById('secret-input').value.trim();
-    
-    if (!json || !secret) {
-        return;
-    }
-    
-    try {
-        const data = JSON.parse(json);
-        const serializer = new FlaskSessionSerializer(secret);
-        const token = serializer.encode(data);
-        const input = document.getElementById('session-input');
-        input.value = token;
-        
-        // Update highlight layer
-        updateSessionDisplay();
-        
-        // Trigger decode to show result in JSON if it's encoded
-        decodeSession();
-    } catch (e) {
-        // Invalid JSON or key, ignore
-    }
+    encodePayload();
 });
 
-// Decode: Extract and decode session
 document.getElementById('secret-input').addEventListener('input', function() {
+    encodePayload();
+});
+
+// Decode Listeners
+
+document.getElementById('session-input').addEventListener('input', function() {
     decodeSession();
 });
 
-const sessionInput = document.getElementById('session-input');
-sessionInput.addEventListener('input', function() {
-    updateSessionDisplay();
-    decodeSession();
-});
-
-function updateSessionDisplay() {
-    const input = document.getElementById('session-input');
-    const highlight = document.getElementById('session-highlight');
-    const token = input.value;
-    
-    if (!token) {
-        highlight.innerHTML = '';
-        setStatusById('session-status', 'Paste Flask Session Token', false);
-        return;
-    }
-    
-    const parts = token.split('.');
-    if (parts.length === 2) {
-        const payload = escapeHtml(parts[0]);
-        const signature = escapeHtml(parts[1]);
-        highlight.innerHTML = `<span class="token-payload">${payload}</span>.<span class="token-signature">${signature}</span>`;
-        setStatusById('session-status', 'Token contains payload and signature', false);
-    } else if (parts.length === 1) {
-        highlight.innerHTML = `<span class="token-payload">${escapeHtml(parts[0])}</span>`;
-        setStatusById('session-status', 'Only payload present — signature missing', true);
-    } else {
-        highlight.textContent = escapeHtml(token);
-        setStatusById('session-status', 'Invalid token format', true);
-    }
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+function encodePayload() {
+    const payload = document.getElementById('payload-input').value.trim();
+    const secret = document.getElementById('secret-input').value.trim();
+    document.getElementById('session-input').value = encode(payload, secret);
 }
 
 function decodeSession() {
-    const input = document.getElementById('session-input');
-    const token = input.value.trim();
+    const session = document.getElementById('session-input').value.trim();
     const secret = document.getElementById('secret-input').value.trim();
-    
-    if (!token || !secret) {
-        const jsonInput = document.getElementById('payload-input');
-        // Don't clear if user is typing
-        if (jsonInput !== document.activeElement) {
-            jsonInput.value = '';
-        }
-        // Update status hints
-        if (!token) setStatusById('session-status', 'Paste Flask Session Token', false);
-        if (!secret) setStatusById('secret-status', 'Enter secret key', false);
-        return;
-    }
-    
-    if (!token.includes('.')) {
-        setStatusById('session-status', 'Token format seems wrong (no dot)', true);
-        return;
-    }
-    
-    try {
-        const serializer = new FlaskSessionSerializer(secret);
-        const data = serializer.decode(token);
-        
-        // Show decoded data in JSON input only if it's not focused
-        const jsonInput = document.getElementById('payload-input');
-        if (jsonInput !== document.activeElement) {
-            jsonInput.value = JSON.stringify(data, null, 2);
-        }
-    setStatusById('session-status', 'Decoded successfully', 'success');
-    setStatusById('secret-status', 'Secret accepted', 'success');
-    } catch (e) {
-        // Invalid signature - show error in JSON input
-        const jsonInput = document.getElementById('payload-input');
-        if (jsonInput !== document.activeElement) {
-            jsonInput.value = `// Error: ${e.message}`;
-        }
-        // Show error statuses
-        if (e.message && e.message.toLowerCase().includes('signature')) {
-            setStatusById('session-status', 'Invalid signature', true);
-            setStatusById('secret-status', 'Wrong secret key', true);
-        } else {
-            setStatusById('session-status', `Failed to decode: ${e.message}`, true);
-        }
-    }
+    document.getElementById('payload-input').value = decode(session, secret);
 }

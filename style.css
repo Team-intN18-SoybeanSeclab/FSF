@@ -210,7 +210,7 @@ textarea:focus, input:focus {
     font-size: 12px;
     font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
     background: transparent;
-    color: transparent;
+    color: var(--fg);
     caret-color: var(--fg);
     border: none;
     outline: none;
