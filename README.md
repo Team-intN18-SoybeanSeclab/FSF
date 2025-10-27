@@ -4,6 +4,7 @@
 
 Flask Session 解码/编码工具  
 
-![image](./images/readme_example.png)
+![](https://raw.githubusercontent.com/Team-intN18-SoybeanSeclab/FSF/refs/heads/main/images/readme_example.png)
 
 你可以访问 fsf.hdsec.cn 体验本项目。  
+
