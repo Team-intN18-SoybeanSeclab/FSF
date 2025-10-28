@@ -37,6 +37,10 @@
                 <label class="field-label">payload</label>
                 <textarea id="payload-input" rows="8" placeholder='Enter payload to encode: {"user_id": 1, "username": "admin"}' >{"user_id": 1, "username": "admin"}</textarea>
             </div>
+            <div class="section">
+                <label class="field-label">timestamp (optional)</label>
+                <input type="number" id="timestamp-input" placeholder="Enter custom Unix timestamp" value="${Math.floor(Date.now() / 1000)}">
+            </div>
         </div>
         </div>
     </div>
