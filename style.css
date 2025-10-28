@@ -180,7 +180,7 @@ textarea:focus, input:focus {
 }
 
 /* Make secret and payload inputs visibly boxed */
-#secret-input, #payload-input {
+#secret-input, #payload-input, #timestamp-input {
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--input-bg);

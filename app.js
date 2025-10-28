@@ -1,4 +1,4 @@
-function encode(data, secret) {
+function encode(data, secret, customTimestamp) {
     if (!data) {
         setStatusById('session-status', 'Payload is empty', true);
     }
@@ -10,7 +10,7 @@ function encode(data, secret) {
 
     let base64 = btoa(data);
     base64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    let timestamp = Math.floor(Date.now() / 1000);
+    let timestamp = customTimestamp || Math.floor(Date.now() / 1000);
     timestamp = String.fromCharCode((timestamp >> 24) & 0xFF) +
                 String.fromCharCode((timestamp >> 16) & 0xFF) +
                 String.fromCharCode((timestamp >> 8) & 0xFF) +
@@ -81,6 +81,7 @@ window.addEventListener('DOMContentLoaded', function() {
         document.documentElement.setAttribute('data-theme', 'dark');
         document.getElementById('theme-icon').textContent = 'D';
     }
+    document.getElementById('timestamp-input').value = Math.floor(Date.now() / 1000);
     // Initialize status bars
     const sessionStatus = document.getElementById('session-status');
     const secretStatus = document.getElementById('secret-status');
@@ -127,6 +128,10 @@ document.getElementById('secret-input').addEventListener('input', function() {
     encodePayload();
 });
 
+document.getElementById('timestamp-input').addEventListener('input', function() {
+    encodePayload();
+});
+
 // Decode Listeners
 
 document.getElementById('session-input').addEventListener('input', function() {
@@ -136,11 +141,25 @@ document.getElementById('session-input').addEventListener('input', function() {
 function encodePayload() {
     const payload = document.getElementById('payload-input').value.trim();
     const secret = document.getElementById('secret-input').value.trim();
-    document.getElementById('session-input').value = encode(payload, secret);
+    const timestampInput = document.getElementById('timestamp-input').value.trim();
+    const customTimestamp = timestampInput ? parseInt(timestampInput) : null;
+    document.getElementById('session-input').value = encode(payload, secret, customTimestamp);
 }
 
 function decodeSession() {
     const session = document.getElementById('session-input').value.trim();
     const secret = document.getElementById('secret-input').value.trim();
     document.getElementById('payload-input').value = decode(session, secret);
+    
+    // Extract timestamp from session and update timestamp input
+    const parts = session.split('.');
+    if (parts.length >= 2) {
+        const timestampBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const timestampBytes = atob(timestampBase64);
+        let timestamp = 0;
+        for (let i = 0; i < 4; i++) {
+            timestamp = (timestamp << 8) + timestampBytes.charCodeAt(i);
+        }
+        document.getElementById('timestamp-input').value = timestamp;
+    }
 }
