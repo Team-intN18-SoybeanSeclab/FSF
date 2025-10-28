@@ -150,4 +150,16 @@ function decodeSession() {
     const session = document.getElementById('session-input').value.trim();
     const secret = document.getElementById('secret-input').value.trim();
     document.getElementById('payload-input').value = decode(session, secret);
+    
+    // Extract timestamp from session and update timestamp input
+    const parts = session.split('.');
+    if (parts.length >= 2) {
+        const timestampBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const timestampBytes = atob(timestampBase64);
+        let timestamp = 0;
+        for (let i = 0; i < 4; i++) {
+            timestamp = (timestamp << 8) + timestampBytes.charCodeAt(i);
+        }
+        document.getElementById('timestamp-input').value = timestamp;
+    }
 }
