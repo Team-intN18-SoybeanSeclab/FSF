@@ -24,23 +24,28 @@ function encode(data, secret, customTimestamp) {
     return `${base64}.${signature}`;
 }
     
-function decode(token, secret) {
+function verifySession(token, secret) {
+    setStatusById('secret-status', secret ? '' : 'Secret key is empty', !secret);
+    if (!token || !secret) {
+        setStatusById('session-status', token ? 'Signature not checked' : 'Paste Flask Session Token');
+        return;
+    }
+
     const parts = token.split('.');
-    
     const payload = parts.slice(0, 2).join('.');
     const signature = parts[2] || '';
-
-
     const expectedSigUrl = getSignature(payload, secret);
-    
+
     if (expectedSigUrl !== signature) {
         setStatusById('session-status', 'Signature invalid', true);
     } else {
         setStatusById('session-status', 'Signature valid', false);
     }
-    const timestamp = payload.split('.')[1];
-    const payload_raw = payload.split('.')[0];
-    let base64 = payload_raw.replace(/-/g, '+').replace(/_/g, '/');
+}
+
+function decode(token, secret) {
+    verifySession(token, secret);
+    let base64 = token.split('.')[0].replace(/-/g, '+').replace(/_/g, '/');
     while (base64.length % 4) {
         base64 += '=';
     }
@@ -119,12 +124,19 @@ function setStatusById(id, message, isError = false) {
     }
 }
 
+let verifyingSession = false;
+
 // Encode Listeners
 document.getElementById('payload-input').addEventListener('input', function() {
     encodePayload();
 });
 
 document.getElementById('secret-input').addEventListener('input', function() {
+    if (verifyingSession) {
+        const session = document.getElementById('session-input').value.trim();
+        verifySession(session, this.value.trim());
+        return;
+    }
     encodePayload();
 });
 
@@ -135,6 +147,7 @@ document.getElementById('timestamp-input').addEventListener('input', function() 
 // Decode Listeners
 
 document.getElementById('session-input').addEventListener('input', function() {
+    verifyingSession = true;
     decodeSession();
 });
 
@@ -144,6 +157,7 @@ function encodePayload() {
     const timestampInput = document.getElementById('timestamp-input').value.trim();
     const customTimestamp = timestampInput ? parseInt(timestampInput) : null;
     document.getElementById('session-input').value = encode(payload, secret, customTimestamp);
+    verifyingSession = false;
 }
 
 function decodeSession() {
